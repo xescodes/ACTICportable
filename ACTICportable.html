@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test ACTIC</title>
+  <!-- CSS intern -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .results {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test ACTIC</h1>
+  <div class="container">
+    <div id="test-container"></div>
+    <button id="submit-btn">Enviar Test</button>
+    <div id="results" class="results"></div>
+  </div>
+
+  <!-- JavaScript intern -->
+  <script>
+    // Base de dades de preguntes
+    const preguntes = [
+      {
+        enunciat: "Què és un full de càlcul?",
+        opcions: ["a) Un programa per escriure textos.", "b) Un programa per organitzar i analitzar dades.", "c) Un programa per crear presentacions."],
+        correcta: "b",
+        explicacio: "Un full de càlcul és una eina dissenyada per organitzar, analitzar i realitzar càlculs amb dades numèriques [[6]]."
+      },
+      {
+        enunciat: "Quina fórmula utilitzaries per calcular la suma del rang A1:A10 en Excel?",
+        opcions: ["a) =SUMA(A1:A10)", "b) =MITJANA(A1:A10)", "c) =MAX(A1:A10)"],
+        correcta: "a",
+        explicacio: "La funció =SUMA(A1:A10) s'utilitza per sumar tots els valors dins del rang especificat [[6]]."
+      },
+      {
+        enunciat: "Quin element NO és adequat per incloure en una diapositiva de presentació?",
+        opcions: ["a) Una imatge rellevant.", "b) Un títol clar.", "c) Un bloc de text molt llarg."],
+        correcta: "c",
+        explicacio: "Les diapositives han de ser visuals i concises. Incloure blocs de text massa llargs pot distreure l'audiència [[10]]."
+      }
+    ];
+
+    // Funció per generar el test
+    function generarTest() {
+      const testContainer = document.getElementById("test-container");
+      testContainer.innerHTML = ""; // Neteja el contingut previ
+
+      preguntes.forEach((pregunta, index) => {
+        const preguntaDiv = document.createElement("div");
+        preguntaDiv.className = "question";
+        preguntaDiv.innerHTML = `
+          <p><strong>${index + 1}. ${pregunta.enunciat}</strong></p>
+          ${pregunta.opcions.map(opcio => `
+            <label>
+              <input type="radio" name="q${index}" value="${opcio[0]}">
+              ${opcio}
+            </label><br>
+          `).join("")}
+        `;
+        testContainer.appendChild(preguntaDiv);
+      });
+    }
+
+    // Funció per processar el test
+    function processarTest() {
+      const resultats = [];
+      let puntuacio = 0;
+
+      preguntes.forEach((pregunta, index) => {
+        const respostaSeleccionada = document.querySelector(`input[name="q${index}"]:checked`);
+        if (respostaSeleccionada) {
+          const resposta = respostaSeleccionada.value;
+          if (resposta === pregunta.correcta) {
+            puntuacio++;
+          } else {
+            resultats.push({
+              enunciat: pregunta.enunciat,
+              respostaIncorrecta: resposta,
+              respostaCorrecta: pregunta.correcta,
+              explicacio: pregunta.explicacio
+            });
+          }
+        }
+      });
+
+      mostrarResultats(puntuacio, resultats);
+    }
+
+    // Funció per mostrar els resultats
+    function mostrarResultats(puntuacio, errors) {
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = `<p><strong>Puntuació: ${puntuacio}/${preguntes.length}</strong></p>`;
+
+      if (errors.length > 0) {
+        resultsDiv.innerHTML += "<p><strong>Errors:</strong></p>";
+        errors.forEach(error => {
+          resultsDiv.innerHTML += `
+            <p><strong>Pregunta:</strong> ${error.enunciat}</p>
+            <p><strong>Resposta incorrecta:</strong> ${error.respostaIncorrecta}</p>
+            <p><strong>Resposta correcta:</strong> ${error.respostaCorrecta}</p>
+            <p><strong>Explicació:</strong> ${error.explicacio}</p>
+            <hr>
+          `;
+        });
+      }
+    }
+
+    // Events
+    document.getElementById("submit-btn").addEventListener("click", processarTest);
+
+    // Inicialització
+    generarTest();
+  </script>
+</body>
+</html>
