@@ -49,14 +49,19 @@
 <body>
   <h1>Test ACTIC</h1>
   <div class="container">
-    <div id="test-container"></div>
-    <button id="submit-btn">Enviar Test</button>
+    <div id="config-container">
+      <label for="num-questions">Quantes preguntes vols en el test? (Màxim: 6)</label>
+      <input type="number" id="num-questions" min="1" max="6" value="6">
+      <button id="start-btn">Comença el Test</button>
+    </div>
+    <div id="test-container" style="display: none;"></div>
+    <button id="submit-btn" style="display: none;">Enviar Test</button>
     <div id="results" class="results"></div>
   </div>
 
   <!-- JavaScript intern -->
   <script>
-    // Base de dades de preguntes
+    // Base de dades de preguntes ampliada
     const preguntes = [
       {
         enunciat: "Què és un full de càlcul?",
@@ -75,15 +80,35 @@
         opcions: ["a) Una imatge rellevant.", "b) Un títol clar.", "c) Un bloc de text molt llarg."],
         correcta: "c",
         explicacio: "Les diapositives han de ser visuals i concises. Incloure blocs de text massa llargs pot distreure l'audiència [[10]]."
+      },
+      {
+        enunciat: "Quina és la funció principal d'un processador de textos?",
+        opcions: ["a) Crear i editar documents escrits.", "b) Realitzar càlculs matemàtics.", "c) Dissenyar presentacions visuals."],
+        correcta: "a",
+        explicacio: "Un processador de textos s'utilitza principalment per crear, editar i formatar documents escrits [[1]]."
+      },
+      {
+        enunciat: "Què és un gràfic de barres en un full de càlcul?",
+        opcions: ["a) Una representació visual de dades numèriques mitjançant barres.", "b) Un diagrama que mostra connexions entre diferents elements.", "c) Una taula que conté només valors numèrics."],
+        correcta: "a",
+        explicacio: "Un gràfic de barres és una eina visual que ajuda a comparar dades numèriques utilitzant barres de diferents alçades o longituds [[6]]."
+      },
+      {
+        enunciat: "Quin és l'objectiu principal d'una presentació efectiva?",
+        opcions: ["a) Incloure el màxim de text possible.", "b) Comunicar idees clares i concises amb suport visual.", "c) Utilitzar molts efectes especials per captar l'atenció."],
+        correcta: "b",
+        explicacio: "Una presentació efectiva ha de centrar-se en comunicar idees clares i concises, utilitzant imatges, gràfics i text mínim per reforçar el missatge [[10]]."
       }
     ];
 
     // Funció per generar el test
-    function generarTest() {
+    function generarTest(numPreguntes) {
       const testContainer = document.getElementById("test-container");
       testContainer.innerHTML = ""; // Neteja el contingut previ
 
-      preguntes.forEach((pregunta, index) => {
+      const preguntesAleatories = preguntes.sort(() => 0.5 - Math.random()).slice(0, numPreguntes);
+
+      preguntesAleatories.forEach((pregunta, index) => {
         const preguntaDiv = document.createElement("div");
         preguntaDiv.className = "question";
         preguntaDiv.innerHTML = `
@@ -144,10 +169,19 @@
     }
 
     // Events
-    document.getElementById("submit-btn").addEventListener("click", processarTest);
+    document.getElementById("start-btn").addEventListener("click", () => {
+      const numPreguntes = parseInt(document.getElementById("num-questions").value, 10);
+      if (numPreguntes > 0 && numPreguntes <= preguntes.length) {
+        document.getElementById("config-container").style.display = "none";
+        document.getElementById("test-container").style.display = "block";
+        document.getElementById("submit-btn").style.display = "block";
+        generarTest(numPreguntes);
+      } else {
+        alert(`Si us plau, introdueix un nombre vàlid de preguntes (entre 1 i ${preguntes.length}).`);
+      }
+    });
 
-    // Inicialització
-    generarTest();
+    document.getElementById("submit-btn").addEventListener("click", processarTest);
   </script>
 </body>
 </html>
