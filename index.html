@@ -1,32 +1,98 @@
-function verifyAnswers(rows) {
-    let correctes = 0;
-    rows.forEach((row, index) => {
-        const correcta = extractLetter(row[5].trim().toUpperCase());
-        const seleccionada = document.querySelector(`input[name="q${index}"]:checked`)?.value.toUpperCase() || '';
-        const resultDiv = document.getElementById(`result-${index}`);
-        const explanationDiv = document.getElementById(`explanation-${index}`);
-        if (seleccionada === correcta) {
-            resultDiv.innerHTML = '<span class="correct">✓ Correcte</span>';
-            correctes++;
-        } else {
-            resultDiv.innerHTML = `
-                <span class="incorrect">✗ Incorrecte</span>
-                <br><small>Resposta correcta: ${row[5]}</small>
-            `;
-            explanationDiv.innerHTML = row[6] || 'Sense explicació';
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qüestionari Interactiu</title>
+    <link rel="icon" href="data:," type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
         }
-    });
-    const total = rows.length;
-    const percentage = Math.round((correctes / total) * 100);
-    let percentageColorClass = 'green';
-    if (percentage < 50) {
-        percentageColorClass = 'red';
-    } else if (percentage >= 51 && percentage <= 59) {
-        percentageColorClass = 'brown';
-    }
-    document.getElementById('results').innerHTML = `
-        <h2>Resultat: ${correctes}/${total}</h2>
-        <p>Percentatge d'èxit: <span class="bold ${percentageColorClass}">${percentage}%</span></p>
-    `;
-    saveResults(correctes, total);
-}
+        h1 {
+            color: #333;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .options label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .result {
+            margin-top: 10px;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .explanation {
+            margin-top: 5px;
+            color: #666;
+        }
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .login-modal {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .login-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .progress-chart {
+            margin-top: 20px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .red {
+            color: red;
+        }
+        .brown {
+            color: brown;
+        }
+        .green {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Qüestionari Interactiu</h1>
+    <div class="btn-container">
+        <button id="login-btn">Iniciar Sessió</button>
+        <button id="show-progress-btn">Mostrar Progrés</button>
+        <button id="refresh-btn">Refrescar Pàgina</button>
+    </div>
+    <div id="loading">Carregant...</div>
+    <div id="quiz-container" style="display: none;"></div>
+    <button id="submit-btn" style="display: none;">Verificar Respostes</button>
+    <div id="results"></div>
+    <div id="progress-chart" class="progress-chart" style="display: none;">
+        <canvas id="progressChart"></canvas>
+    </div>
+    <!-- Modal per iniciar sessió -->
+    <div id="login-modal" class="login-modal">
+        <div class="login-form">
+            <h2>Iniciar Sessió</h2>
+            <form id="login-form">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <button type="submit">Iniciar Sessió</button>
+            </
